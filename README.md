@@ -148,7 +148,9 @@ ${LOG_APP_NAME} = app
 ### 日志库选择（logback)
 
 日志库的原则：可靠、简单、不需要过多折腾
+
 日志库：logback 
+
 logback 中文手册/文档： https://github.com/YLongo/logback-chinese-manual
 
 依赖版本：
@@ -200,7 +202,6 @@ debug日志因为会涉及到level动态改变，大多数情况下是不需要�
 
 #### 配置文件说明:
 
-
 scan="true" scanPeriod="15 seconds"
 
 > 代表可以动态改变日志配置文件，实现热更配置，需15秒后生效。
@@ -208,17 +209,16 @@ scan="true" scanPeriod="15 seconds"
 property name:
 
 * LOG_ENV `重要` 定义日志环境标识 默认dev、正式环境可填prod
-    * 可通过启动参数 -Dlog.log_env=prod 启动时改变
+    * 可通过启动参数 -Dlog.log_env=prod 启动时覆盖改变
 * LOG_HOME `重要` 定义日志文件的存储地址路径 ，这个使用的是相对路径，默认即在日志文件存放在项目根路径./logs文件夹下 (可通过环境变量LOG_HOME覆盖)
-    * 可通过启动参数 -Dlog.log_home=./logs 启动时改变
+    * 可通过启动参数 -Dlog.log_home=./logs 启动时覆盖改变
 * LOG_ROOT_LEVEL `重要`  定义rootLevel  默认INFO，调试程序时可以修改为 DEBUG
-    * 可通过启动参数 -Dlog_root_level=DEBUG 启动时改变
+    * 可通过启动参数 -Dlog_root_level=DEBUG 启动时覆盖改变
 * LOG_APP_NAME 程序日志文件名 默认:app
 * LOG_PATTERN 日志格式：[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%p] [%t] [%-5.40logger{39}] : %m%n
 * LOG_MAX_FILE_SIZE 定义日志文件大小,超过这个大小将被轮转 默认：200MB
 * LOG_MAX_TOTAL_SIZE 定义日志文件保留最多数据空间  默认：20GB
 * LOG_MAX_HISTORY 定义日志文件保留最近条数  默认保留最近60条
-
 
 shutdownHook
 > 在独立的 java 应用程序中，在配置文件中添加 <shutdownHook/> 可以确保任何日志打包任务完成之后，JVM 才会退出。在 web 应用程序中，webShutdownHook 会自动安装，<shutdownHook/> 将会变的多余且没有必要。
