@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="15 seconds" debug="false" >
+    <!-- 定义日志文件运行环境，可通过环境变量deploy.LOG_ENV指定 默认为dev  上线可选prod-->
+    <property name="LOG_ENV" value="${log.log_env:-dev}" />
+    <!-- 定义日志文件的存储地址路径 ，这个使用的是相对路径，默认即在日志文件存放在项目根路径./logs文件夹下-->
+    <property name="LOG_HOME" value="${log.log_home:-./logs}" />
+    <!-- 定义rootLevel  默认INFO 可以修改为 DEBUG -->
+    <property name="LOG_ROOT_LEVEL" value="${log.log_root_level:-DEBUG}" />
+    <!-- 定义日志文件名称，默认:app-->
+    <property name="LOG_APP_NAME" value="app" />
+    <!-- 定义日志格式格式化输出：%d表示日期 %p日志level %t线程名 : %msg日志消息，%n是换行符-->
+    <property name="LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%p] [%t] [%-5.40logger{39}] : %m%n" />
+    <!-- 定义日志文件大小,超过这个大小将被轮转 默认：200MB -->
+    <property name="LOG_MAX_FILE_SIZE" value="200MB" />
+    <!-- 定义日志文件保留最近条数  默认保留最近60条 -->
+    <property name="LOG_MAX_HISTORY" value="60" />
+    <!-- 定义日志文件保留最多数据空间  默认最多保留20GB -->
+    <property name="LOG_MAX_TOTAL_SIZE" value="20GB" />
+
+    <!--优雅关闭 -->
+    <shutdownHook/>
+
+    <!-- 控制台输出 appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 轮转日志 appender-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${LOG_APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/${LOG_APP_NAME}.log.%d{yyyy-MM-dd}.%i</FileNamePattern>
+            <!--日志文件保留最近条数-->
+            <MaxHistory>${LOG_MAX_HISTORY}</MaxHistory>
+            <!--定义日志文件大小-->
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <!--定义日志文件保留最多数据空间-->
+            <totalSizeCap>${LOG_MAX_TOTAL_SIZE}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 轮转日志 appender ERROR-->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <file>${LOG_HOME}/${LOG_APP_NAME}-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <FileNamePattern>${LOG_HOME}/${LOG_APP_NAME}-error.log.%d{yyyy-MM-dd}.%i</FileNamePattern>
+            <!--日志文件保留最近条数-->
+            <MaxHistory>${LOG_MAX_HISTORY}</MaxHistory>
+            <!--定义日志文件大小-->
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <!--定义日志文件保留最多数据空间-->
+            <totalSizeCap>${LOG_MAX_TOTAL_SIZE}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 异步日志，如果日志量持续输出比较大，可考虑使用 -->
+<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <appender-ref ref="FILE" />-->
+<!--    </appender>-->
+
+    <!--    属性 additivity="true" 日志冒泡 true 则会冒泡的到root ，如果不需要日志重复输出可以关闭 -->
+
+    <!-- root logger  日志输出级别 ，一定要把上边定义的appender 写在下面否者会导致日志文件生成不了，或者为空的日志文件-->
+    <root level="${LOG_ROOT_LEVEL}">
+        <!-- 异步日志 看情况开启， ASYNC_FILE、FILE 不要同时开启 -->
+<!--        <appender-ref ref="ASYNC_FILE" />-->
+        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE_ERROR" />
+        <!-- 控制台输出，非开发环境应该关闭,避免无意义的输出  -->
+        <if condition='property("LOG_ENV").contains("dev")'>
+            <then>
+                <appender-ref ref="STDOUT" />
+            </then>
+        </if>
+    </root>
+</configuration>
